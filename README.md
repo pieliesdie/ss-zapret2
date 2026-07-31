@@ -1,7 +1,12 @@
-![Zapret2 Version](https://img.shields.io/badge/zapret2-v1.0.2-red)
-![Docker Pulls](https://img.shields.io/docker/pulls/vernette/ss-zapret2?logo=docker)
+![Zapret2 Version](https://img.shields.io/badge/zapret2-v1.0.4-red)
 
-Docker-контейнер на основе [zapret2 от bol-van](https://github.com/bol-van/zapret2) с интегрированным Shadowsocks и SOCKS5 для подключения к контейнеру. Предназначен для удобной маршрутизации трафика через изолированную среду без модификации основной сети. Продолжение [ss-zapret](https://github.com/vernette/ss-zapret).
+> [!NOTE]
+> Это форк [vernette/ss-zapret2](https://github.com/vernette/ss-zapret2). Отличия от оригинала:
+> - `shadowsocks-libev` заменён на [`shadowsocks-rust`](https://github.com/shadowsocks/shadowsocks-rust) — оригинальный libev-резолвер DNS имеет известное ограничение на количество одновременных запросов (фиксированный размер таблицы watcher slots), из-за которого при высокой нагрузке резолвинг мог зависать (`failed to find free I/O watcher slot for DNS query`). Rust-версия использует асинхронный резолвер на Tokio без этого ограничения
+> - Добавлена переменная окружения `DNS_SERVER` — позволяет задать конкретный DNS-сервер (в том числе локальный, например AdGuard Home) для резолвинга вместо системного резолвера по умолчанию
+> - Образ собирается и публикуется в GitHub Container Registry вместо Docker Hub
+
+Docker-контейнер на основе [zapret2 от bol-van](https://github.com/bol-van/zapret2) с интегрированным Shadowsocks (shadowsocks-rust) и SOCKS5 для подключения к контейнеру. Предназначен для удобной маршрутизации трафика через изолированную среду без модификации основной сети. Продолжение [ss-zapret](https://github.com/vernette/ss-zapret).
 
 - Изоляция zapret2 в отдельном контейнере
 - Простая интеграция с sing-box, Xray и другими прокси-клиентами
@@ -107,6 +112,7 @@ SS_TIMEOUT=300                              # Таймаут подключен�
 | SS_ENCRYPT_METHOD: `chacha20-ietf-poly1305` | Метод шифрования Shadowsocks                     |
 | SS_TIMEOUT: `300`                           | Таймаут сокета Shadowsocks в секундах            |
 | SS_VERBOSE: `0`, `1`                        | Логгирование Shadowsocks. По умолчанию отключено |
+| DNS_SERVER: `1.1.1.1`, `adguardhome:53`     | DNS-сервер для резолвинга (поле `nameserver` в конфиге shadowsocks-rust). Необязательно — если не задано, используется системный резолвер |
 
 4. Запустите контейнер:
 

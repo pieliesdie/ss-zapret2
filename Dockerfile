@@ -1,5 +1,5 @@
 ARG ALPINE_VERSION=3.21
-ARG ZAPRET_TAG=v1.0.2
+ARG ZAPRET_TAG=v1.0.4
 ARG CURL_VERSION=8.13.0
 ARG BLOCKCHECKW_VERSION=v0.9.0
 
@@ -66,8 +66,8 @@ RUN apk add --no-cache \
       iptables \
       ip6tables \
       nftables \
-      netcat-openbsd && \
-    apk add --no-cache -X https://dl-cdn.alpinelinux.org/alpine/edge/testing shadowsocks-libev
+      netcat-openbsd \
+      shadowsocks-rust
 
 EXPOSE 1080 8388
 

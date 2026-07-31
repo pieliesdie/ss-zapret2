@@ -49,10 +49,48 @@ if [ "${SS_VERBOSE:-0}" = "1" ]; then
   SS_VERBOSE_FLAG="-v"
 fi
 
-ss-server ${SS_VERBOSE_FLAG} -s 0.0.0.0 -p "${SS_PORT}" -k "${SS_PASSWORD}" -m "${SS_ENCRYPT_METHOD}" -t "${SS_TIMEOUT}" -u &
+# shadowsocks-rust конфигурируется через JSON, а не через флаги (в отличие от libev).
+# Генерируем оба конфига на лету из тех же переменных окружения, что и раньше.
+SSSERVER_CONFIG="/tmp/ssserver.json"
+SSLOCAL_CONFIG="/tmp/sslocal.json"
+
+# Необязательная переменная: DNS-сервер для резолвинга целевых доменов.
+# Если не задана - используется системный резолвер по умолчанию.
+NAMESERVER_FIELD=""
+if [ -n "${DNS_SERVER:-}" ]; then
+  NAMESERVER_FIELD="  \"nameserver\": \"${DNS_SERVER}\","
+fi
+
+cat > "${SSSERVER_CONFIG}" <<EOF
+{
+  ${NAMESERVER_FIELD}
+  "server": "0.0.0.0",
+  "server_port": ${SS_PORT},
+  "password": "${SS_PASSWORD}",
+  "method": "${SS_ENCRYPT_METHOD}",
+  "timeout": ${SS_TIMEOUT},
+  "mode": "tcp_and_udp"
+}
+EOF
+
+cat > "${SSLOCAL_CONFIG}" <<EOF
+{
+  ${NAMESERVER_FIELD}
+  "server": "127.0.0.1",
+  "server_port": ${SS_PORT},
+  "password": "${SS_PASSWORD}",
+  "method": "${SS_ENCRYPT_METHOD}",
+  "timeout": ${SS_TIMEOUT},
+  "local_address": "0.0.0.0",
+  "local_port": ${SOCKS_PORT},
+  "mode": "tcp_and_udp"
+}
+EOF
+
+ssserver ${SS_VERBOSE_FLAG} -c "${SSSERVER_CONFIG}" &
 SS_SERVER_PID=$!
 
-ss-local ${SS_VERBOSE_FLAG} -b 0.0.0.0 -s 127.0.0.1 -p "${SS_PORT}" -l "${SOCKS_PORT}" -k "${SS_PASSWORD}" -m "${SS_ENCRYPT_METHOD}" -t "${SS_TIMEOUT}" -u &
+sslocal ${SS_VERBOSE_FLAG} -c "${SSLOCAL_CONFIG}" &
 SS_LOCAL_PID=$!
 
 wait
