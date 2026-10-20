@@ -1,4 +1,4 @@
-![Zapret2 Version](https://img.shields.io/badge/zapret2-v1.0.4-red)
+![Zapret2 Version](https://img.shields.io/badge/zapret2-v1.0.5-red)
 
 > [!NOTE]
 > Это форк [vernette/ss-zapret2](https://github.com/vernette/ss-zapret2). Отличия от оригинала:
